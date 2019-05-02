@@ -53,12 +53,12 @@
   },
   "variables": {
     "Environment": "[toLower(parameters('Environment'))]",
-    "KeyVaultName": "[toLower(concat(parameters('ApplicationName'), '-', variables('Environment'), '-kv'))",
+    "KeyVaultName": "[toLower(concat(parameters('ApplicationName'), '-kv'))",
     "ApplicationName": "toLower(parameters('ApplicationName'))",
     "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]",
-    "AppServicePlanName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-plan-',parameters('Location')))]",
+    "AppServicePlanName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-plan'))]",
     "AppServicePlanId": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]",
-    "InsightsName": "[toLower()]"
+    "InsightsName": "[toLower(concat(parameters('ApplicationName'), '-', variables('Environment'), '-insights'))]"
   },
   "resources": [
     {
