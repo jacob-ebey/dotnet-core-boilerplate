@@ -53,8 +53,8 @@
   },
   "variables": {
     "Environment": "[toLower(parameters('Environment'))]",
-    "KeyVaultName": "[toLower(concat(parameters('ApplicationName'), '-kv'))",
-    "ApplicationName": "toLower(parameters('ApplicationName'))",
+    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]",
+    "ApplicationId": "[resourceId('Microsoft.Web/sites', variables('WebAppName'))]",
     "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]",
     "AppServicePlanName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-plan'))]",
     "AppServicePlanId": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]",
@@ -71,7 +71,18 @@
         "sku": {
           "name": "standard",
           "family": "A"
-        }
+        },
+        "accessPolicies": [
+          {
+            "objectId": "[subscription().subscriptionId]",
+            "tenantId": "[subscription().tenantId]",
+            "permissions": {
+              "certificates": ["all"],
+              "keys": ["all"],
+              "secrets": ["all"]
+            }
+          }
+        ]
       }
     },
     {
@@ -116,13 +127,13 @@
       "apiVersion": "2018-02-14",
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]",
-        "[resourceId('Microsoft.Web/sites', variables('ApplicationName'))]"
+        "[variables('ApplicationId')]"
       ],
       "properties": {
         "accessPolicies": [
           {
             "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference(variables('AppServiceId'), '2015-08-01', 'Full').identity.principalId]",
+            "objectId": "[reference(variables('ApplicationId'), '2015-08-01', 'Full').identity.principalId]",
             "permissions": {
               "certificates": ["get", "list"],
               "keys": ["get", "list"],
@@ -152,7 +163,7 @@
       "apiVersion": "2018-02-14",
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]",
-        "[resourceId('Microsoft.Web/sites', variables('ApplicationName'))]"
+        "[variables('ApplicationId')]"
       ],
       "properties": {
         "contentType": "text/plain",
