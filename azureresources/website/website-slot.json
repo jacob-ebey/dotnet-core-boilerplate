@@ -116,15 +116,15 @@
   "outputs": {
     "Id": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate').outputs.Id]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')).outputs.Id]"
     },
     "Name": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate').outputs.Name]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')).outputs.Name]"
     },
     "PrincipalId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate').outputs.PrincipalId]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')).outputs.PrincipalId]"
     }
   }
 }
