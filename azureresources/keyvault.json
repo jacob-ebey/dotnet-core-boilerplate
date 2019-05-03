@@ -37,13 +37,12 @@
     }
   },
   "variables": {
-    "Environment": "[toLower(parameters('Environment'))]",
-    "KeyVaultName": "[if(equals(parameters('KeyVaultName'), ''), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]"
+    "Environment": "[toLower(parameters('Environment'))]"
   },
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
-      "name": "[variables('KeyVaultName')]",
+      "name": "[if(not(empty(parameters('KeyVaultName'))), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]",
       "apiVersion": "2018-02-14",
       "location": "[parameters('Location')]",
       "tags": {
