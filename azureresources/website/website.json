@@ -120,6 +120,10 @@
     "Name": {
       "type": "string",
       "value": "[variables('WebAppName')]"
+    },
+    "PrincipalId": {
+      "type": "string",
+      "value": "[reference(variables('ApplicationId'), '2015-08-01', 'Full').identity.principalId]"
     }
   }
 }

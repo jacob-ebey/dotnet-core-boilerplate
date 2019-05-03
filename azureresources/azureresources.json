@@ -100,7 +100,7 @@
     },
     {
       "type": "Microsoft.KeyVault/vaults/accessPolicies",
-      "name": "[concat(variables('KeyVaultName'), '/add')]",
+      "name": "[concat(reference('KeyVaultTemplate').outputs.Name, '/add')]",
       "apiVersion": "2018-02-14",
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')]",
@@ -110,7 +110,7 @@
         "accessPolicies": [
           {
             "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference(reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate'), '2015-08-01', 'Full').Id, '2015-08-01', 'Full').identity.principalId]",
+            "objectId": "[reference('WebsiteTemplate').outputs.PrincipalId]",
             "permissions": {
               "certificates": ["get", "list"],
               "keys": ["get", "list"],
