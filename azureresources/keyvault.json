@@ -42,7 +42,7 @@
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
-      "name": "[if(not(empty(parameters('KeyVaultName'))), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]",
+      "name": "[if(empty(parameters('KeyVaultName')), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]",
       "apiVersion": "2018-02-14",
       "location": "[parameters('Location')]",
       "tags": {
@@ -72,11 +72,11 @@
   "outputs": {
     "Id": {
       "type": "string",
-      "value": "[resourceId('Microsoft.KeyVault/vaults', if(not(empty(parameters('KeyVaultName'))), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName')))]"
+      "value": "[resourceId('Microsoft.KeyVault/vaults', if(empty(parameters('KeyVaultName')), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName')))]"
     },
     "Name": {
       "type": "string",
-      "value": "[if(not(empty(parameters('KeyVaultName'))), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]"
+      "value": "[if(empty(parameters('KeyVaultName')), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]"
     }
   }
 }
