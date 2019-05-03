@@ -87,7 +87,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-05-01",
-      "name": "WebsiteTemplate",
+      "name": "WebsiteSlotTemplate",
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'KeyVaultTemplate')]"
       ],
