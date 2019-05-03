@@ -22,12 +22,6 @@
         "description": "The location of the resource."
       }
     },
-    "KeyVaultGroupId": {
-      "type": "string",
-      "metadata": {
-        "description": "The id of the user group you wish to allow access to the key vault."
-      }
-    },
     "SkuName": {
       "type": "string",
       "defaultValue": "S1",
@@ -55,10 +49,18 @@
       "metadata": {
         "description": "Number of Workers for web server farm"
       }
+    },
+    "KeyVaultGroupId": {
+      "type": "string",
+      "metadata": {
+        "description": "The id of the user group you wish to allow access to the key vault."
+      }
     }
   },
   "variables": {
-    
+    "Environment": "[toLower(parameters('Environment'))]",
+    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]",
+    "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]"
   },
   "resources": [
     {
@@ -72,10 +74,21 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "ApplicationName": "[parameters('ApplicationName')]",
-          "Environment": "[parameters('Environment')]",
-          "Location": "[parameters('Location')]",
-          "KeyVaultGroupId": "[parameters('KeyVaultGroupId')]"
+          "ApplicationName": {
+            "value": "[parameters('ApplicationName')]"
+          },
+          "Environment": {
+            "value": "[parameters('Environment')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "KeyVaultGroupId": {
+            "value": "[parameters('KeyVaultGroupId')]"
+          },
+          "KeyVaultName": {
+            "value": "[variables('KeyVaultName')]"
+          }
         }
       }
     },
@@ -83,6 +96,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-05-01",
       "name": "WebsiteTemplate",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'KeyVaultTemplate')]"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -90,34 +106,25 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "ApplicationName": "[parameters('ApplicationName')]",
-          "Environment": "[parameters('Environment')]",
-          "Location": "[parameters('Location')]",
-          "SkuName": "[parameters('SkuName')]",
-          "NumberOfWorkers": "[parameters('NumberOfWorkers')]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.KeyVault/vaults/accessPolicies",
-      "name": "[concat(reference('KeyVaultTemplate').outputs.Name, '/add')]",
-      "apiVersion": "2018-02-14",
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')]",
-        "[resourceId('Microsoft.Resources/deployments', 'KeyVaultTemplate')]"
-      ],
-      "properties": {
-        "accessPolicies": [
-          {
-            "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference('WebsiteTemplate').outputs.PrincipalId]",
-            "permissions": {
-              "certificates": ["get", "list"],
-              "keys": ["get", "list"],
-              "secrets": ["get", "list"]
-            }
+          "ApplicationName": {
+            "value": "[parameters('ApplicationName')]"
+          },
+          "Environment": {
+            "value": "[parameters('Environment')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "SkuName": {
+            "value": "[parameters('SkuName')]"
+          },
+          "NumberOfWorkers": {
+            "value": "[parameters('NumberOfWorkers')]"
+          },
+          "KeyVaultName": {
+            "value": "[variables('KeyVaultName')]"
           }
-        ]
+        }
       }
     }
   ],

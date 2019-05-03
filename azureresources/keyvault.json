@@ -27,11 +27,18 @@
       "metadata": {
         "description": "The id of the user group you wish to allow access to the key vault."
       }
+    },
+    "KeyVaultName": {
+      "type": "string",
+      "defaultValue": null,
+      "metadata": {
+        "description": "The name of the key vault."
+      }
     }
   },
   "variables": {
     "Environment": "[toLower(parameters('Environment'))]",
-    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]"
+    "KeyVaultName": "[if(equals(parameters('KeyVaultName'), null), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]"
   },
   "resources": [
     {
@@ -71,10 +78,6 @@
     "Name": {
       "type": "string",
       "value": "[variables('KeyVaultName')]"
-    },
-    "AddName": {
-      "type": "string",
-      "value": "[concat(variables('KeyVaultName'), '/add')]"
     }
   }
 }

@@ -16,6 +16,9 @@
     },
     "NumberOfWorkers": {
       "value": 1
+    },
+    "KeyVaultGroupId": {
+      "value": "ac9c858e-14dd-47b3-b2b3-cb11282a6585"
     }
   }
 }

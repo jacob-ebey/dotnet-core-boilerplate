@@ -68,39 +68,38 @@
   },
   "resources": [
     {
-      "apiVersion": "2018-02-01",
-      "name": "[variables('AppServicePlanName')]",
-      "type": "Microsoft.Web/serverfarms",
-      "location": "[parameters('Location')]",
-      "tags": {
-        "ApplicationName": "[parameters('ApplicationName')]",
-        "Environment": "[variables('Environment')]"
-      },
-      "sku": {
-        "name": "[parameters('skuName')]"
-      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
+      "name": "WebsiteTemplate",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'KeyVaultTemplate')]"
+      ],
       "properties": {
-        "name": "[variables('AppServicePlanName')]",
-        "numberOfWorkers": "[parameters('NumberOfWorkers')]",
-        "http20Enabled": true
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2018-02-01",
-      "name": "[variables('WebAppName')]",
-      "location": "[parameters('Location')]",
-      "identity": {
-        "type": "SystemAssigned"
-      },
-      "tags": {
-        "ApplicationName": "[parameters('ApplicationName')]",
-        "Environment": "[variables('Environment')]"
-      },
-      "dependsOn": ["[variables('AppServicePlanId')]"],
-      "properties": {
-        "name": "[variables('WebAppName')]",
-        "serverFarmId": "[variables('AppServicePlanId')]"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/website/website.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApplicationName": {
+            "value": "[parameters('ApplicationName')]"
+          },
+          "Environment": {
+            "value": "[parameters('Environment')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "SkuName": {
+            "value": "[parameters('SkuName')]"
+          },
+          "NumberOfWorkers": {
+            "value": "[parameters('NumberOfWorkers')]"
+          },
+          "KeyVaultName": {
+            "value": "[variables('KeyVaultName')]"
+          }
+        }
       }
     },
     {
@@ -118,21 +117,7 @@
       "dependsOn": [
         "[variables('AppServiceId')]"
       ]
-    },
-    {
-      "type": "Microsoft.Insights/components",
-      "kind": "app",
-      "name": "[variables('InsightsName')]",
-      "apiVersion": "2015-05-01",
-      "location": "[parameters('location')]",
-      "tags": {
-        "ApplicationName": "[parameters('ApplicationName')]",
-        "Environment": "[variables('Environment')]"
-      },
-      "properties": {
-        "Application_Type": "web"
-      }
     }
   ],
-  "outputs": {}
+  "outputs": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate').outputs]"
 }
