@@ -26,11 +26,6 @@
       "type": "string",
       "defaultValue": "S1",
       "allowedValues": [
-        "F1",
-        "D1",
-        "B1",
-        "B2",
-        "B3",
         "S1",
         "S2",
         "S3",
@@ -99,7 +94,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/website/website.json",
+          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/website/website-slot.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

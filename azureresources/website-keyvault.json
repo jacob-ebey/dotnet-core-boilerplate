@@ -24,7 +24,7 @@
     },
     "SkuName": {
       "type": "string",
-      "defaultValue": "S1",
+      "defaultValue": "F1",
       "allowedValues": [
         "F1",
         "D1",
@@ -50,27 +50,52 @@
         "description": "Number of Workers for web server farm"
       }
     },
-    "KeyVaultName": {
+    "KeyVaultGroupId": {
       "type": "string",
-      "defaultValue": null,
       "metadata": {
-        "description": "The name of the key vault."
+        "description": "The id of the user group you wish to allow access to the key vault."
       }
     }
   },
   "variables": {
     "Environment": "[toLower(parameters('Environment'))]",
-    "ApplicationId": "[resourceId('Microsoft.Web/sites', variables('WebAppName'))]",
-    "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]",
-    "AppServicePlanName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-plan'))]",
-    "AppServicePlanId": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]",
-    "InsightsName": "[toLower(concat(parameters('ApplicationName'), '-', variables('Environment'), '-insights'))]"
+    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]",
+    "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]"
   },
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-05-01",
+      "name": "KeyVaultTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/keyvault.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApplicationName": {
+            "value": "[parameters('ApplicationName')]"
+          },
+          "Environment": {
+            "value": "[parameters('Environment')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "KeyVaultGroupId": {
+            "value": "[parameters('KeyVaultGroupId')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
       "name": "WebsiteTemplate",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'KeyVaultTemplate')]"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -94,24 +119,11 @@
             "value": "[parameters('NumberOfWorkers')]"
           },
           "KeyVaultName": {
-            "value": "[parameters('KeyVaultName')]"
+            "value": "[variables('KeyVaultName')]"
           }
         }
       }
-    },
-    {
-      "type": "Microsoft.Web/sites/slots",
-      "apiVersion": "2015-08-01",
-      "name": "[concat(variables('WebAppName'), '/', 'staging')]",
-      "kind": "app",
-      "location": "[parameters('Location')]",
-      "properties": {
-        "serverFarmId": "[variables('AppServicePlanId')]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')]"
-      ]
     }
   ],
-  "outputs": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate').outputs]"
+  "outputs": {}
 }
