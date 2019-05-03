@@ -105,6 +105,10 @@
       "name": "[concat(variables('WebAppName'), '/', 'staging')]",
       "kind": "app",
       "location": "[parameters('Location')]",
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[variables('Environment')]"
+      },
       "properties": {
         "serverFarmId": "[variables('AppServicePlanId')]"
       },
