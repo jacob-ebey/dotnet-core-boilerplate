@@ -71,6 +71,10 @@
     "Name": {
       "type": "string",
       "value": "[variables('KeyVaultName')]"
+    },
+    "AddName": {
+      "type": "string",
+      "value": "[concat(variables('KeyVaultName'), '/add')]"
     }
   }
 }
