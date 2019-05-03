@@ -137,6 +137,18 @@
       "properties": {
         "Application_Type": "web"
       }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(parameters('KeyVaultName'), '/ApplicationInsights--InstrumentationKey')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('InsightsName'))]"
+      ],
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[reference(resourceId('Microsoft.Insights/components', variables('InsightsName')), '2014-04-01').InstrumentationKey]"
+      }
     }
   ],
   "outputs": {

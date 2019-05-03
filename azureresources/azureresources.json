@@ -119,7 +119,7 @@
             "value": "[parameters('NumberOfWorkers')]"
           },
           "KeyVaultName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'KeyVaultTemplate')).outputs.Name]"
+            "value": "[variables('KeyVaultName')]"
           }
         }
       }
