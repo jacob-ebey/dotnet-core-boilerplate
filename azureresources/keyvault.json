@@ -69,14 +69,5 @@
       }
     }
   ],
-  "outputs": {
-    "Id": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.KeyVault/vaults', if(empty(parameters('KeyVaultName')), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName')))]"
-    },
-    "Name": {
-      "type": "string",
-      "value": "[if(empty(parameters('KeyVaultName')), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]"
-    }
-  }
+  "outputs": {}
 }
