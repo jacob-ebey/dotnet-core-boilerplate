@@ -3,10 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "ApplicationName": {
-      "value": "DemoApp"
+      "value": "AudiAPI"
     },
     "Environment": {
       "value": "dev"
+    },
+    "Location": {
+      "value": "westus2"
+    },
+    "SkuName": {
+      "value": "F1"
+    },
+    "NumberOfWorkers": {
+      "value": 1
     }
   }
 }

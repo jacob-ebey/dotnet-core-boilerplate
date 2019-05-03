@@ -1,0 +1,185 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApplicationName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the application."
+      }
+    },
+    "Environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment type"
+      }
+    },
+    "Location": {
+      "type": "string",
+      "defaultValue": "westus2",
+      "metadata": {
+        "description": "The location of the resource."
+      }
+    },
+    "KeyVaultGroupId": {
+      "type": "string",
+      "metadata": {
+        "description": "The id of the user group you wish to allow access to the key vault."
+      }
+    },
+    "SkuName": {
+      "type": "string",
+      "defaultValue": "S1",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and capacity. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "NumberOfWorkers": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Number of Workers for web server farm"
+      }
+    }
+  },
+  "variables": {
+    "Environment": "[toLower(parameters('Environment'))]",
+    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]",
+    "ApplicationId": "[resourceId('Microsoft.Web/sites', variables('WebAppName'))]",
+    "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]",
+    "AppServicePlanName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-plan'))]",
+    "AppServicePlanId": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]",
+    "InsightsName": "[toLower(concat(parameters('ApplicationName'), '-', variables('Environment'), '-insights'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[variables('KeyVaultName')]",
+      "apiVersion": "2018-02-14",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[variables('Environment')]"
+      },
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "name": "standard",
+          "family": "A"
+        },
+        "accessPolicies": [
+          {
+            "objectId": "[parameters('KeyVaultGroupId')]",
+            "tenantId": "[subscription().tenantId]",
+            "permissions": {
+              "certificates": ["all"],
+              "keys": ["all"],
+              "secrets": ["all"]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "name": "[variables('AppServicePlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[variables('Environment')]"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]"
+      },
+      "properties": {
+        "name": "[variables('AppServicePlanName')]",
+        "numberOfWorkers": "[parameters('NumberOfWorkers')]",
+        "http20Enabled": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-02-01",
+      "name": "[variables('WebAppName')]",
+      "location": "[parameters('Location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[variables('Environment')]"
+      },
+      "dependsOn": ["[variables('AppServicePlanId')]"],
+      "properties": {
+        "name": "[variables('WebAppName')]",
+        "serverFarmId": "[variables('AppServicePlanId')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[concat(variables('KeyVaultName'), '/add')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]",
+        "[variables('ApplicationId')]"
+      ],
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(variables('ApplicationId'), '2015-08-01', 'Full').identity.principalId]",
+            "permissions": {
+              "certificates": ["get", "list"],
+              "keys": ["get", "list"],
+              "secrets": ["get", "list"]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "kind": "app",
+      "name": "[variables('InsightsName')]",
+      "apiVersion": "2015-05-01",
+      "location": "[parameters('location')]",
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[variables('Environment')]"
+      },
+      "properties": {
+        "Application_Type": "web"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('KeyVaultName'), '/ApplicationInsights--InstrumentationKey')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]",
+        "[variables('ApplicationId')]"
+      ],
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[reference(resourceId('Microsoft.Insights/components', variables('InsightsName')), '2014-04-01').InstrumentationKey]"
+      }
+    }
+  ],
+  "outputs": {}
+}

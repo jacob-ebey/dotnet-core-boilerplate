@@ -1,0 +1,125 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApplicationName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the application."
+      }
+    },
+    "Environment": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the environment."
+      }
+    },
+    "Location": {
+      "type": "string",
+      "defaultValue": "westus2",
+      "metadata": {
+        "description": "The location of the resource."
+      }
+    },
+    "KeyVaultGroupId": {
+      "type": "string",
+      "metadata": {
+        "description": "The id of the user group you wish to allow access to the key vault."
+      }
+    },
+    "SkuName": {
+      "type": "string",
+      "defaultValue": "S1",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and capacity. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "NumberOfWorkers": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Number of Workers for web server farm"
+      }
+    }
+  },
+  "variables": {
+    
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
+      "name": "KeyVaultTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/keyvault.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApplicationName": "[parameters('ApplicationName')]",
+          "Environment": "[parameters('Environment')]",
+          "Location": "[parameters('Location')]",
+          "KeyVaultGroupId": "[parameters('KeyVaultGroupId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
+      "name": "WebsiteTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/website/website.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApplicationName": "[parameters('ApplicationName')]",
+          "Environment": "[parameters('Environment')]",
+          "Location": "[parameters('Location')]",
+          "SkuName": "[parameters('SkuName')]",
+          "NumberOfWorkers": "[parameters('NumberOfWorkers')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[concat(variables('KeyVaultName'), '/add')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')]",
+        "[resourceId('Microsoft.Resources/deployments', 'KeyVaultTemplate')]"
+      ],
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate'), '2015-08-01', 'Full').Id, '2015-08-01', 'Full').identity.principalId]",
+            "permissions": {
+              "certificates": ["get", "list"],
+              "keys": ["get", "list"],
+              "secrets": ["get", "list"]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {}
+}

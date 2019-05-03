@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApplicationName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the application."
+      }
+    },
+    "Environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment type"
+      }
+    },
+    "Location": {
+      "type": "string",
+      "defaultValue": "westus2",
+      "metadata": {
+        "description": "The location of the resource."
+      }
+    },
+    "KeyVaultGroupId": {
+      "type": "string",
+      "metadata": {
+        "description": "The id of the user group you wish to allow access to the key vault."
+      }
+    }
+  },
+  "variables": {
+    "Environment": "[toLower(parameters('Environment'))]",
+    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[variables('KeyVaultName')]",
+      "apiVersion": "2018-02-14",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[variables('Environment')]"
+      },
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "name": "standard",
+          "family": "A"
+        },
+        "accessPolicies": [
+          {
+            "objectId": "[parameters('KeyVaultGroupId')]",
+            "tenantId": "[subscription().tenantId]",
+            "permissions": {
+              "certificates": ["all"],
+              "keys": ["all"],
+              "secrets": ["all"]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "Id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]"
+    },
+    "Name": {
+      "type": "string",
+      "value": "[variables('KeyVaultName')]"
+    }
+  }
+}

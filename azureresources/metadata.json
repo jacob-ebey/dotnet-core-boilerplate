@@ -1,9 +1,0 @@
-{
-  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
-  "type": "QuickStart",
-  "itemDisplayName": "Create a dotnet core website",
-  "description": "This template creates a website in an envrionment with insigths and keyvault.",
-  "summary": "This template creates a website in an envrionment with insigths and keyvault, adds the apps identity to the keyvault with the instrumentation key.",
-  "githubUsername": "jacob-ebey",
-  "dateUpdated": "2019-05-01"
-}
