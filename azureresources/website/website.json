@@ -114,7 +114,7 @@
         "accessPolicies": [
           {
             "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference(variables('ApplicationId')), '2015-08-01', 'Full').identity.principalId]",
+            "objectId": "[reference(variables('ApplicationId'), '2015-08-01', 'Full').identity.principalId]",
             "permissions": {
               "certificates": ["get", "list"],
               "keys": ["get", "list"],
