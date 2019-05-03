@@ -113,5 +113,5 @@
       ]
     }
   ],
-  "outputs": "[reference(resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate').outputs]"
+  "outputs": {}
 }

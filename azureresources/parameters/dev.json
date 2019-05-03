@@ -11,9 +11,6 @@
     "Location": {
       "value": "westus2"
     },
-    "SkuName": {
-      "value": "F1"
-    },
     "NumberOfWorkers": {
       "value": 1
     },
