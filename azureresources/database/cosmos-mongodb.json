@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApplicationName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the application."
+      }
+    },
+    "Environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment type"
+      }
+    },
+    "Location": {
+      "type": "string",
+      "defaultValue": "westus2",
+      "metadata": {
+        "description": "The location of the resource."
+      }
+    }
+  },
+  "variables": {
+    "DbName": "[toLower(concat(parameters('ApplicationName'),'-', parameters('Environment'),'-mongodb'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-04-08",
+      "kind": "MongoDB",
+      "type": "Microsoft.DocumentDb/databaseAccounts",
+      "name": "[variables('DbName')]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "databaseAccountOfferType": "Standard",
+        "locations": [
+          {
+            "id": "[tolower(concat(parameters('ApplicationName'), '-', parameters('Environment'),'-mongodb', parameters('Location')))]",
+            "failoverPriority": 0,
+            "locationName": "[parameters('Location')]"
+          }
+        ],
+        "enableMultipleWriteLocations": false,
+        "isVirtualNetworkFilterEnabled": false,
+        "virtualNetworkRules": [],
+        "ipRangeFilter": "",
+        "dependsOn": []
+      },
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[parameters('Environment')]"
+      }
+    }
+  ]
+}
