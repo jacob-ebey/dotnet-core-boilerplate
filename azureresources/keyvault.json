@@ -72,11 +72,11 @@
   "outputs": {
     "Id": {
       "type": "string",
-      "value": "[resourceId('Microsoft.KeyVault/vaults', variables('KeyVaultName'))]"
+      "value": "[resourceId('Microsoft.KeyVault/vaults', if(not(empty(parameters('KeyVaultName'))), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName')))]"
     },
     "Name": {
       "type": "string",
-      "value": "[variables('KeyVaultName')]"
+      "value": "[if(not(empty(parameters('KeyVaultName'))), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]"
     }
   }
 }
