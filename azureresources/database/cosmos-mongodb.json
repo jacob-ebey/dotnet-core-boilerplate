@@ -28,48 +28,113 @@
       "metadata": {
         "description": "The name of the key vault."
       }
+    },
+    "PrimaryRegion": {
+      "type": "string",
+      "metadata": {
+        "description": "The primary replica region for the Cosmos DB account."
+      }
+    },
+    "SecondaryRegion": {
+      "type": "string",
+      "metadata": {
+        "description": "The secondary replica region for the Cosmos DB account."
+      }
+    },
+    "DefaultConsistencyLevel": {
+      "type": "string",
+      "defaultValue": "Session",
+      "allowedValues": [
+        "Eventual",
+        "ConsistentPrefix",
+        "Session",
+        "BoundedStaleness",
+        "Strong"
+      ],
+      "metadata": {
+        "description": "The default consistency level of the Cosmos DB account."
+      }
+    },
+    "MultipleWriteLocations": {
+      "type": "bool",
+      "defaultValue": false,
+      "allowedValues": [true, false],
+      "metadata": {
+        "description": "Enable multi-master to make all regions writable."
+      }
+    },
+    "Throughput": {
+      "type": "int",
+      "defaultValue": 400,
+      "minValue": 400,
+      "maxValue": 1000000,
+      "metadata": {
+        "description": "The throughput for the Mongo DB database"
+      }
     }
   },
   "variables": {
-    "DbName": "[toLower(concat(parameters('ApplicationName'), '-cosmos-mongo-db-', parameters('Environment')))]"
+    "AccountName": "[toLower(concat(parameters('ApplicationName'), '-mongo-', parameters('Envrionment')))]",
+    "DbName": "[toLower(concat(parameters('ApplicationName'), '-', parameters('Environment')))]",
+    "Locations": [
+      {
+        "locationName": "[parameters('PrimaryRegion')]",
+        "failoverPriority": 0
+      },
+      {
+        "locationName": "[parameters('SecondaryRegion')]",
+        "failoverPriority": 1
+      }
+    ],
+    "ConsistencyPolicy": {
+      "Eventual": {
+        "defaultConsistencyLevel": "Eventual"
+      },
+      "ConsistentPrefix": {
+        "defaultConsistencyLevel": "ConsistentPrefix"
+      },
+      "Session": {
+        "defaultConsistencyLevel": "Session"
+      },
+      "BoundedStaleness": {
+        "defaultConsistencyLevel": "BoundedStaleness",
+        "maxStalenessPrefix": "[parameters('maxStalenessPrefix')]",
+        "maxIntervalInSeconds": "[parameters('maxIntervalInSeconds')]"
+      },
+      "Strong": {
+        "defaultConsistencyLevel": "Strong"
+      }
+    }
   },
   "resources": [
     {
-      "apiVersion": "2015-04-08",
-      "kind": "MongoDB",
-      "type": "Microsoft.DocumentDb/databaseAccounts",
-      "name": "[variables('DbName')]",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "name": "[variables('AccountName')]",
+      "apiVersion": "2016-03-31",
       "location": "[parameters('Location')]",
+      "kind": "MongoDB",
       "properties": {
+        "consistencyPolicy": "[variables('ConsistencyPolicy')[parameters('DefaultConsistencyLevel')]]",
+        "locations": "[variables('Locations')]",
         "databaseAccountOfferType": "Standard",
-        "locations": [
-          {
-            "id": "[variables('DbName')]",
-            "failoverPriority": 0,
-            "locationName": "[parameters('Location')]"
-          }
-        ],
-        "enableMultipleWriteLocations": false,
-        "isVirtualNetworkFilterEnabled": false,
-        "virtualNetworkRules": [],
-        "ipRangeFilter": "",
-        "dependsOn": []
-      },
-      "tags": {
-        "ApplicationName": "[parameters('ApplicationName')]",
-        "Environment": "[parameters('Environment')]"
+        "enableMultipleWriteLocations": "[parameters('MultipleWriteLocations')]"
       }
     },
     {
-      "type": "Microsoft.KeyVault/vaults/secrets",
-      "name": "[concat(parameters('KeyVaultName'), '/MongoDb--Connection')]",
-      "apiVersion": "2018-02-14",
+      "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
+      "name": "[concat(variables('AccountName'), '/mongodb/', variables('DbName'))]",
+      "apiVersion": "2016-03-31",
       "dependsOn": [
-        "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('DbName'))]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('AccountName'))]"
       ],
       "properties": {
-        "contentType": "text/plain",
-        "value": "[concat('AccountEndpoint=https://', variables('DbName'), '.documents.azure.com:443/;AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('DbName')), '2015-04-08').primaryMasterKey, ';')]"
+        "mode": "Incremental",
+        "resource": {
+          "id": "[parameters('DbName')]"
+        },
+        "options": {
+          "throughput": "[parameters('Throughput')]"
+        }
       }
     }
   ]
