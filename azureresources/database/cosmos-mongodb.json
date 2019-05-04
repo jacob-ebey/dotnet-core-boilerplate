@@ -96,6 +96,7 @@
   "variables": {
     "AccountName": "[toLower(concat(parameters('ApplicationName'), '-mongo-', parameters('Environment')))]",
     "DbName": "[toLower(concat(parameters('ApplicationName'), '-', parameters('Environment')))]",
+    "FullDbName": "[concat(variables('AccountName'), '/mongodb/', variables('DbName'))]",
     "Locations": [
       {
         "locationName": "[parameters('PrimaryRegion')]",
@@ -146,7 +147,7 @@
     },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
-      "name": "[concat(variables('AccountName'), '/mongodb/', variables('DbName'))]",
+      "name": "[variables('FullDbName')]",
       "apiVersion": "2016-03-31",
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('AccountName'))]"
@@ -159,6 +160,18 @@
         "options": {
           "throughput": "[parameters('Throughput')]"
         }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(parameters('KeyVaultName'), '/Mongo--ConnectionString')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', variables('FullDbName'))]"
+      ],
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDb/databaseAccounts', parameters('AccountName')), '2015-04-08').connectionStrings[0].connectionString]"
       }
     }
   ]
