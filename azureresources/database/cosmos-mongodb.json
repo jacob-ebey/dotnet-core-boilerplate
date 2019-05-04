@@ -76,7 +76,7 @@
     }
   },
   "variables": {
-    "AccountName": "[toLower(concat(parameters('ApplicationName'), '-mongo-', parameters('Envrionment')))]",
+    "AccountName": "[toLower(concat(parameters('ApplicationName'), '-mongo-', parameters('Environment')))]",
     "DbName": "[toLower(concat(parameters('ApplicationName'), '-', parameters('Environment')))]",
     "Locations": [
       {
