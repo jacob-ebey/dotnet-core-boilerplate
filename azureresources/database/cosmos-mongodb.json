@@ -57,6 +57,24 @@
         "description": "The default consistency level of the Cosmos DB account."
       }
     },
+    "MaxStalenessPrefix": {
+      "type": "int",
+      "defaultValue": 100000,
+      "minValue": 10,
+      "maxValue": 2147483647,
+      "metadata": {
+        "description": "Max stale requests. Required for BoundedStaleness. Valid ranges, Single Region: 10 to 1000000. Multi Region: 100000 to 1000000."
+      }
+    },
+    "MaxIntervalInSeconds": {
+      "type": "int",
+      "defaultValue": 300,
+      "minValue": 5,
+      "maxValue": 86400,
+      "metadata": {
+        "description": "Max lag time (seconds). Required for BoundedStaleness. Valid ranges, Single Region: 5 to 84600. Multi Region: 300 to 86400."
+      }
+    },
     "MultipleWriteLocations": {
       "type": "bool",
       "defaultValue": false,
@@ -100,8 +118,8 @@
       },
       "BoundedStaleness": {
         "defaultConsistencyLevel": "BoundedStaleness",
-        "maxStalenessPrefix": "[parameters('maxStalenessPrefix')]",
-        "maxIntervalInSeconds": "[parameters('maxIntervalInSeconds')]"
+        "maxStalenessPrefix": "[parameters('MaxStalenessPrefix')]",
+        "maxIntervalInSeconds": "[parameters('MaxIntervalInSeconds')]"
       },
       "Strong": {
         "defaultConsistencyLevel": "Strong"
