@@ -21,10 +21,17 @@
       "metadata": {
         "description": "The location of the resource."
       }
+    },
+    "KeyVaultName": {
+      "type": "string",
+      "defaultValue": null,
+      "metadata": {
+        "description": "The name of the key vault."
+      }
     }
   },
   "variables": {
-    "DbName": "[toLower(concat(parameters('ApplicationName'),'-', parameters('Environment'),'-mongodb'))]"
+    "DbName": "[concat(parameters('ApplicationName'), 'MongoDB', '-', toLower(parameters('Environment')))]"
   },
   "resources": [
     {
@@ -37,7 +44,7 @@
         "databaseAccountOfferType": "Standard",
         "locations": [
           {
-            "id": "[tolower(concat(parameters('ApplicationName'), '-', parameters('Environment'),'-mongodb', parameters('Location')))]",
+            "id": "[variables('DbName')]",
             "failoverPriority": 0,
             "locationName": "[parameters('Location')]"
           }
@@ -51,6 +58,18 @@
       "tags": {
         "ApplicationName": "[parameters('ApplicationName')]",
         "Environment": "[parameters('Environment')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(parameters('KeyVaultName'), '/MongoDb--Connection')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('DbName'))]"
+      ],
+      "properties": {
+        "contentType": "text/plain",
+        "value": "[concat('AccountEndpoint=https://', variables('DbName'), '.documents.azure.com:443/;AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('DbName')), '2015-04-08').primaryMasterKey, ';')]"
       }
     }
   ]

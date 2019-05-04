@@ -1,0 +1,129 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ApplicationName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of the application."
+      }
+    },
+    "Environment": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the environment."
+      }
+    },
+    "Location": {
+      "type": "string",
+      "defaultValue": "westus2",
+      "metadata": {
+        "description": "The location of the resource."
+      }
+    },
+    "SkuName": {
+      "type": "string",
+      "defaultValue": "F1",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and capacity. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "NumberOfWorkers": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Number of Workers for web server farm"
+      }
+    },
+    "KeyVaultGroupId": {
+      "type": "string",
+      "metadata": {
+        "description": "The id of the user group you wish to allow access to the key vault."
+      }
+    }
+  },
+  "variables": {
+    "Environment": "[toLower(parameters('Environment'))]",
+    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]",
+    "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
+      "name": "WebsiteKeyVaultTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/website-keyvault.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApplicationName": {
+            "value": "[parameters('ApplicationName')]"
+          },
+          "Environment": {
+            "value": "[parameters('Environment')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "SkuName": {
+            "value": "[parameters('SkuName')]"
+          },
+          "NumberOfWorkers": {
+            "value": "[parameters('NumberOfWorkers')]"
+          },
+          "KeyVaultGroupId": {
+            "value": "[parameters('KeyVaultGroupId')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
+      "name": "MongoDbTemplate",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'WebsiteKeyVaultTemplate')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/jacob-ebey/dotnet-core-boilerplate/master/azureresources/database/cosmos-mongodb.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "ApplicationName": {
+            "value": "[parameters('ApplicationName')]"
+          },
+          "Environment": {
+            "value": "[parameters('Environment')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "KeyVaultName": {
+            "value": "[variables('KeyVaultName')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
