@@ -171,7 +171,7 @@
       ],
       "properties": {
         "contentType": "text/plain",
-        "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDb/databaseAccounts', parameters('AccountName')), '2015-04-08').connectionStrings[0].connectionString]"
+        "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('AccountName')), '2015-04-08').connectionStrings[0].connectionString]"
       }
     }
   ]
