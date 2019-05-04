@@ -135,7 +135,7 @@
       "kind": "MongoDB",
       "tags": {
         "ApplicationName": "[parameters('ApplicationName')]",
-        "Environment": "[variables('Environment')]"
+        "Environment": "[parameters('Environment')]"
       },
       "properties": {
         "consistencyPolicy": "[variables('ConsistencyPolicy')[parameters('DefaultConsistencyLevel')]]",
