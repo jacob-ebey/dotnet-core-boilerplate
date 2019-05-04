@@ -31,12 +31,14 @@
     },
     "PrimaryRegion": {
       "type": "string",
+      "defaultValue": "westus2",
       "metadata": {
         "description": "The primary replica region for the Cosmos DB account."
       }
     },
     "SecondaryRegion": {
       "type": "string",
+      "defaultValue": "eastus",
       "metadata": {
         "description": "The secondary replica region for the Cosmos DB account."
       }
