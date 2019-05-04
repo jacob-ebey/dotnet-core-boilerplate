@@ -31,7 +31,7 @@
     }
   },
   "variables": {
-    "DbName": "[toLower(concat(parameters('ApplicationName'), '-mongo-database', '-', parameters('Environment')))]"
+    "DbName": "[toLower(concat(parameters('ApplicationName'), '-cosmosmongo-', parameters('Environment')))]"
   },
   "resources": [
     {
