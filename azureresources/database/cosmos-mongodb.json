@@ -133,6 +133,10 @@
       "apiVersion": "2016-03-31",
       "location": "[parameters('Location')]",
       "kind": "MongoDB",
+      "tags": {
+        "ApplicationName": "[parameters('ApplicationName')]",
+        "Environment": "[variables('Environment')]"
+      },
       "properties": {
         "consistencyPolicy": "[variables('ConsistencyPolicy')[parameters('DefaultConsistencyLevel')]]",
         "locations": "[variables('Locations')]",
@@ -150,7 +154,7 @@
       "properties": {
         "mode": "Incremental",
         "resource": {
-          "id": "[parameters('DbName')]"
+          "id": "[variables('DbName')]"
         },
         "options": {
           "throughput": "[parameters('Throughput')]"
