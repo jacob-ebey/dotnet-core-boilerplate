@@ -179,7 +179,7 @@
       "name": "[concat(parameters('KeyVaultName'), '/Mongo--DbName')]",
       "apiVersion": "2018-02-14",
       "dependsOn": [
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', variables('FullDbName'))]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('AccountName'))]"
       ],
       "properties": {
         "contentType": "text/plain",
