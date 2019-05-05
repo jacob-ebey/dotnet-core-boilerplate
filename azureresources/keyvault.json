@@ -42,7 +42,7 @@
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
-      "name": "[if(empty(parameters('KeyVaultName')), concat(parameters('ApplicationName'), 'KV'), parameters('KeyVaultName'))]",
+      "name": "[if(empty(parameters('KeyVaultName')), concat(parameters('ApplicationName'), 'KV', parameters('Environment')), parameters('KeyVaultName'))]",
       "apiVersion": "2018-02-14",
       "location": "[parameters('Location')]",
       "tags": {
