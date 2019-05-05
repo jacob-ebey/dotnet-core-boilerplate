@@ -54,7 +54,7 @@
   },
   "variables": {
     "Environment": "[toLower(parameters('Environment'))]",
-    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV')]",
+    "KeyVaultName": "[concat(parameters('ApplicationName'), 'KV', parameters('Environment'))]",
     "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]"
   },
   "resources": [
