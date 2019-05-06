@@ -55,6 +55,7 @@
   },
   "variables": {
     "Environment": "[toLower(parameters('Environment'))]",
+    "SlotId": "[resourceId('Microsoft.Web/sites/slots', concat(variables('WebAppName'), '/', 'staging'))]",
     "ApplicationId": "[resourceId('Microsoft.Web/sites', variables('WebAppName'))]",
     "WebAppName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-', parameters('Location')))]",
     "AppServicePlanName": "[toLower(concat(parameters('ApplicationName'),'-', variables('Environment'),'-plan'))]",
@@ -100,6 +101,9 @@
       "name": "[concat(variables('WebAppName'), '/', 'staging')]",
       "kind": "app",
       "location": "[parameters('Location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
       "tags": {
         "ApplicationName": "[parameters('ApplicationName')]",
         "Environment": "[variables('Environment')]"
@@ -110,6 +114,27 @@
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')]"
       ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[concat(parameters('KeyVaultName'), '/add')]",
+      "apiVersion": "2018-02-14",
+      "dependsOn": [
+        "[variables('SlotId')]"
+      ],
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(variables('SlotId'), '2015-08-01', 'Full').identity.principalId]",
+            "permissions": {
+              "certificates": ["get", "list"],
+              "keys": ["get", "list"],
+              "secrets": ["get", "list"]
+            }
+          }
+        ]
+      }
     }
   ],
   "outputs": {}
