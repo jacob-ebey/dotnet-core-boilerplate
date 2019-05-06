@@ -126,7 +126,7 @@
         "accessPolicies": [
           {
             "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('SlotName')), '2015-08-01', 'Full').identity.principalId]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites/slots', variables('SlotName')), '2015-08-01', 'Full').identity.principalId]",
             "permissions": {
               "certificates": ["get", "list"],
               "keys": ["get", "list"],
