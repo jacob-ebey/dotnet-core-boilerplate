@@ -100,9 +100,6 @@
       "name": "[concat(variables('WebAppName'), '/', 'staging')]",
       "kind": "app",
       "location": "[parameters('Location')]",
-      "identity": {
-        "type": "SystemAssigned"
-      },
       "tags": {
         "ApplicationName": "[parameters('ApplicationName')]",
         "Environment": "[variables('Environment')]"
@@ -113,27 +110,6 @@
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'WebsiteTemplate')]"
       ]
-    },
-    {
-      "type": "Microsoft.KeyVault/vaults/accessPolicies",
-      "name": "[concat(parameters('KeyVaultName'), '/add')]",
-      "apiVersion": "2018-02-14",
-      "dependsOn": [
-        "[variables('ApplicationId')]"
-      ],
-      "properties": {
-        "accessPolicies": [
-          {
-            "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference(resourceId('Microsoft.Web/sites/slots', concat(variables('WebAppName'), '/', 'staging')), '2015-08-01', 'Full').identity.principalId]",
-            "permissions": {
-              "certificates": ["get", "list"],
-              "keys": ["get", "list"],
-              "secrets": ["get", "list"]
-            }
-          }
-        ]
-      }
     }
   ],
   "outputs": {}
