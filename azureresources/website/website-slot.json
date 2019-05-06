@@ -120,7 +120,7 @@
       "name": "[concat(parameters('KeyVaultName'), '/add')]",
       "apiVersion": "2018-02-14",
       "dependsOn": [
-        "[variables('SlotName')]"
+        "[resourceId('Microsoft.Web/sites/slots', variables('SlotName'))]"
       ],
       "properties": {
         "accessPolicies": [
